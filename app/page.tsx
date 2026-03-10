@@ -427,9 +427,6 @@ export default function Home() {
                       ? `${formatKm(focusedStation.distanceKm)}`
                       : ""}
                   </span>
-                  {focusedStation.selected?.maj && (
-                    <span>Maj: {focusedStation.selected.maj}</span>
-                  )}
                 </div>
               </div>
             </div>
