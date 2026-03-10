@@ -18,6 +18,16 @@ export type MapStation = {
 type Props = {
   center: { lat: number; lon: number } | null
   stations: MapStation[]
+  route:
+    | {
+        type: "FeatureCollection"
+        features: Array<{
+          type: "Feature"
+          geometry: { type: "LineString"; coordinates: [number, number][] }
+          properties?: Record<string, unknown>
+        }>
+      }
+    | null
   onSelect?: (station: MapStation) => void
 }
 
@@ -45,7 +55,7 @@ function priceBucket(
   return "expensive"
 }
 
-export function StationsMap({ center, stations, onSelect }: Props) {
+export function StationsMap({ center, stations, route, onSelect }: Props) {
   const containerRef = React.useRef<HTMLDivElement | null>(null)
   const mapRef = React.useRef<MapLibreMap | null>(null)
   const stationsByIdRef = React.useRef<Map<string, MapStation>>(new Map())
@@ -184,6 +194,23 @@ export function StationsMap({ center, stations, onSelect }: Props) {
         data: { type: "FeatureCollection", features: [] },
       })
 
+      // Source de l’itinéraire (ligne)
+      map.addSource("routes", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: [] },
+      })
+
+      map.addLayer({
+        id: "routes",
+        type: "line",
+        source: "routes",
+        paint: {
+          "line-color": "#3b82f6",
+          "line-width": 3,
+          "line-opacity": 0.7,
+        },
+      })
+
       // Couches de pins par bucket de prix
       ;[
         { id: "stations-cheap", bucket: "cheap", icon: "station-pin-cheap" },
@@ -309,6 +336,13 @@ export function StationsMap({ center, stations, onSelect }: Props) {
       })
     }
 
+    const routesSource = map.getSource("routes") as maplibregl.GeoJSONSource | undefined
+    if (routesSource) {
+      routesSource.setData(
+        (route as any) ?? { type: "FeatureCollection", features: [] },
+      )
+    }
+
     // Fit view to stations (or center)
     if (visibleStations.length) {
       const bounds = new maplibregl.LngLatBounds()
@@ -320,7 +354,7 @@ export function StationsMap({ center, stations, onSelect }: Props) {
     } else if (center) {
       map.easeTo({ center: [center.lon, center.lat], zoom: 13, duration: 400 })
     }
-  }, [center, maxPrice, minPrice, visibleStations])
+  }, [center, maxPrice, minPrice, route, visibleStations])
 
   return <div ref={containerRef} className="h-full w-full" />
 }

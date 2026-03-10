@@ -22,6 +22,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { Car } from "lucide-react"
 import dynamic from "next/dynamic"
 
 import type { MapStation } from "@/components/maplibre-map"
@@ -79,8 +80,18 @@ function fuelLabel(fuel: FuelKey) {
   }
 }
 
+function formatDurationFromKm(km?: number) {
+  if (km === undefined) return ""
+  const minutes = Math.round((km / 50) * 60) // ~50 km/h moyen
+  if (minutes < 1) return "<1 min"
+  if (minutes < 60) return `${minutes} min`
+  const h = Math.floor(minutes / 60)
+  const m = minutes % 60
+  return m ? `${h} h ${m} min` : `${h} h`
+}
+
 export default function Home() {
-  const [fuel, setFuel] = React.useState<FuelKey>("best")
+  const [fuel, setFuel] = React.useState<FuelKey>("gazole")
   const [radius, setRadius] = React.useState<number>(5000)
   const [openNow, setOpenNow] = React.useState<boolean>(false)
   const [status, setStatus] = React.useState<
@@ -93,6 +104,18 @@ export default function Home() {
   const [stations, setStations] = React.useState<ApiStation[]>([])
   const [focusedId, setFocusedId] = React.useState<string | null>(null)
   const [showLocationPrompt, setShowLocationPrompt] = React.useState(false)
+  const [showRoutes, setShowRoutes] = React.useState(false)
+  const [routeGeoJson, setRouteGeoJson] = React.useState<
+    | {
+        type: "FeatureCollection"
+        features: Array<{
+          type: "Feature"
+          geometry: { type: "LineString"; coordinates: [number, number][] }
+          properties?: Record<string, unknown>
+        }>
+      }
+    | null
+  >(null)
 
   const loadStations = React.useCallback(
     async (lat: number, lon: number, f: FuelKey, r: number, open: boolean) => {
@@ -187,6 +210,55 @@ export default function Home() {
     [focusedId, stations],
   )
 
+  const fetchRoute = React.useCallback(
+    async (from: { lat: number; lon: number }, to: { lat?: number; lon?: number }) => {
+      if (to.lat === undefined || to.lon === undefined) return
+
+      try {
+        const qs = new URLSearchParams()
+        qs.set("fromLat", String(from.lat))
+        qs.set("fromLon", String(from.lon))
+        qs.set("toLat", String(to.lat))
+        qs.set("toLon", String(to.lon))
+        const res = await fetch(`/api/route?${qs.toString()}`)
+        if (!res.ok) return
+        const json = (await res.json()) as {
+          geometry?: { type: string; coordinates: [number, number][] }
+        }
+        if (json.geometry?.type === "LineString") {
+          setRouteGeoJson({
+            type: "FeatureCollection",
+            features: [
+              {
+                type: "Feature",
+                geometry: {
+                  type: "LineString",
+                  coordinates: json.geometry.coordinates,
+                },
+                properties: {},
+              },
+            ],
+          })
+        }
+      } catch {
+        // On ignore les erreurs de routage pour l’instant
+      }
+    },
+    [],
+  )
+
+  React.useEffect(() => {
+    if (!showRoutes) {
+      setRouteGeoJson(null)
+      return
+    }
+    if (!coords || !focusedStation) return
+    void fetchRoute(coords, {
+      lat: focusedStation.latitude,
+      lon: focusedStation.longitude,
+    })
+  }, [coords, fetchRoute, focusedStation, showRoutes])
+
   return (
     <div className="flex min-h-dvh flex-col bg-background">
       <AlertDialog open={showLocationPrompt} onOpenChange={setShowLocationPrompt}>
@@ -233,8 +305,8 @@ export default function Home() {
         </div>
       </header> */}
 
-      <main className="relative flex flex-1 flex-col w-full sm:mx-auto sm:max-w-md sm:px-4 sm:pb-24 sm:pt-3">
-        <div className="relative w-full overflow-hidden bg-card h-[calc(100dvh-64px)] sm:h-[60vh] sm:flex-none sm:rounded-xl sm:border">
+      <main className="relative flex flex-1 flex-col w-full sm:px-4 sm:pb-24 sm:pt-3">
+        <div className="relative w-full overflow-hidden bg-card h-[calc(100dvh-64px)] sm:h-[calc(100dvh-64px)] sm:flex-none sm:rounded-xl sm:border">
           {showLocationPrompt ? (
             <div className="flex h-full w-full items-center justify-center bg-muted/30">
               <div className="w-full max-w-xs rounded-xl border bg-background/80 p-4 text-center shadow-sm">
@@ -249,6 +321,7 @@ export default function Home() {
             <StationsMap
               center={coords}
               stations={mapStations}
+              route={routeGeoJson}
               onSelect={(s) => setFocusedId(s.id)}
             />
           )}
@@ -342,6 +415,12 @@ export default function Home() {
                   </div>
                 )}
 
+                {focusedStation.distanceKm !== undefined && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    ~{formatDurationFromKm(focusedStation.distanceKm)} en voiture
+                  </p>
+                )}
+
                 <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
                   <span>
                     {focusedStation.distanceKm !== undefined
@@ -355,36 +434,29 @@ export default function Home() {
               </div>
             </div>
           )}
+
+          <button
+            type="button"
+            className="absolute bottom-4 right-4 z-30 inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg sm:bottom-6 sm:right-6"
+            onClick={() => setShowRoutes((v) => !v)}
+          >
+            <Car className="h-4 w-4" />
+          </button>
         </div>
       </main>
 
       <footer className="fixed inset-x-0 bottom-0 z-20 border-t bg-background/95 pb-[env(safe-area-inset-bottom)]">
         <div className="mx-auto flex w-full max-w-md items-center gap-2 px-3 py-3 sm:gap-3 sm:px-4">
-          <div className="hidden flex-1 text-xs text-muted-foreground sm:block">
-            <div className="font-medium text-foreground">
-              {stations.length > 0
-                ? `${stations.length} station${stations.length > 1 ? "s" : ""} trouvée${
-                    stations.length > 1 ? "s" : ""
-                  }`
-                : "Aucune station chargée"}
-            </div>
-            <div>
-              {coords
-                ? "Autour de ta position"
-                : "Appuie sur Localiser pour commencer"}
-            </div>
-          </div>
-
           <Sheet>
             <SheetTrigger className="inline-flex items-center justify-center rounded-md border px-3 py-1.5 text-xs font-medium shadow-sm hover:bg-muted">
-              {fuel === "best" ? "Carburant: meilleur prix" : fuelLabel(fuel)}
+              Carburant: {fuelLabel(fuel)}
             </SheetTrigger>
             <SheetContent side="top" className="mx-auto w-full max-w-md">
               <SheetHeader>
                 <SheetTitle>Choisis ton carburant</SheetTitle>
               </SheetHeader>
               <div className="mt-4 grid grid-cols-2 gap-2">
-                {(["best", "gazole", "e10", "sp95", "sp98", "e85", "gplc"] as FuelKey[]).map(
+                {(["gazole", "e10", "sp95", "sp98", "e85", "gplc"] as FuelKey[]).map(
                   (f) => (
                     <Button
                       key={f}
