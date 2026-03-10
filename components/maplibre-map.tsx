@@ -129,7 +129,7 @@ export function StationsMap({ center, stations, route, onSelect }: Props) {
     map.on("load", () => {
       // Icônes de pin dessinées en canvas (couleurs par niveau de prix)
       const createPinImage = (color: string) => {
-        const size = 64
+        const size = 128
         const canvas = document.createElement("canvas")
         canvas.width = size
         canvas.height = size
@@ -146,7 +146,7 @@ export function StationsMap({ center, stations, route, onSelect }: Props) {
 
         const cx = size / 2
         const cy = size / 2 - 6
-        const radius = 10
+        const radius = 20
 
         // Tête du pin
         ctx.beginPath()
@@ -243,10 +243,9 @@ export function StationsMap({ center, stations, route, onSelect }: Props) {
         type: "circle",
         source: "me",
         paint: {
-          "circle-radius": 22,
+          "circle-radius": 2,
           "circle-color": "#8b5cf6", // violet
-          "circle-opacity": 0.25,
-          "circle-blur": 0.6,
+          "circle-opacity": 0.93,
         },
         layout: {
           visibility: "visible",
@@ -257,9 +256,8 @@ export function StationsMap({ center, stations, route, onSelect }: Props) {
         type: "circle",
         source: "me",
         paint: {
-          "circle-radius": 12,
-          "circle-color": "#3b82f6", // bleu
-          "circle-stroke-color": "#111827", // contour noir
+          "circle-radius": 8,
+          "circle-color": "#8b5cf6", // bleu
           "circle-stroke-width": 4,
           "circle-opacity": 0.95,
         },

@@ -123,7 +123,7 @@ function InnerMap({ center, stations, onSelect }: Props) {
           <Recenter center={defaultCenter} />
           <CircleMarker
             center={defaultCenter}
-            radius={8}
+            radius={16}
             pathOptions={{
               color: "#1d4ed8",
               fillColor: "#3b82f6",
@@ -138,7 +138,7 @@ function InnerMap({ center, stations, onSelect }: Props) {
         <CircleMarker
           key={s.id}
           center={[s.latitude!, s.longitude!] as LatLngExpression}
-          radius={12}
+          radius={24}
           pathOptions={{
             color: "#111827",
             fillColor: priceColor(s.selected?.price, minPrice, maxPrice),
