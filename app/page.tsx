@@ -233,8 +233,8 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="relative flex-1 pb-20 sm:mx-auto sm:flex sm:w-full sm:max-w-md sm:flex-col sm:px-4 sm:pb-24 sm:pt-3">
-        <div className="relative h-full w-full overflow-hidden bg-card sm:h-[60vh] sm:rounded-xl sm:border">
+      <main className="relative flex flex-1 flex-col pb-20 sm:mx-auto sm:w-full sm:max-w-md sm:px-4 sm:pb-24 sm:pt-3">
+        <div className="relative flex-1 min-h-0 w-full overflow-hidden bg-card sm:h-[60vh] sm:flex-none sm:rounded-xl sm:border">
           {showLocationPrompt ? (
             <div className="flex h-full w-full items-center justify-center bg-muted/30">
               <div className="w-full max-w-xs rounded-xl border bg-background/80 p-4 text-center shadow-sm">
