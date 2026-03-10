@@ -21,8 +21,9 @@ Métadonnées du site (SEO) :
 - **UI**: Tailwind CSS v4 + shadcn
   - Source: `app/globals.css`, `package.json`
 - **Cartographie**
-  - **MapLibre GL** (utilisé par défaut dans la page): `maplibre-gl`
-    - Source: `components/maplibre-map.tsx`, `app/page.tsx`
+  - **Mapbox GL JS** (utilisé par défaut dans la page): `mapbox-gl`
+    - Token requis: `NEXT_PUBLIC_MAPBOX_TOKEN` (voir `.env.example`)
+    - Source: `components/mapbox-map.tsx`, `app/page.tsx`
   - **Leaflet / React-Leaflet** (autre implémentation disponible): `react-leaflet`, `leaflet`
     - Source: `components/map.tsx`
 
@@ -36,6 +37,7 @@ Métadonnées du site (SEO) :
 - **Page principale**: `app/page.tsx`
 - **API (server)**: `app/api/stations/route.ts`
 - **Carte MapLibre (client)**: `components/maplibre-map.tsx`
+- **Carte Mapbox (client)**: `components/mapbox-map.tsx`
 - **Carte Leaflet (client, alternative)**: `components/map.tsx`
 - **Config Next**: `next.config.ts` (actuellement minimal)
 - **TypeScript**: `tsconfig.json` (alias `@/*` → `./*`)
@@ -131,12 +133,11 @@ Source: `app/api/stations/route.ts` + mapping côté page `app/page.tsx`
 
 ## Cartographie
 
-### MapLibre (implémentation utilisée)
+### Mapbox (implémentation utilisée)
 
-Fichier: `components/maplibre-map.tsx`
+Fichier: `components/mapbox-map.tsx`
 
-- Basemap: tuiles raster **OpenStreetMap** `https://tile.openstreetmap.org/{z}/{x}/{y}.png`
-- Style MapLibre v8 embarqué (pas de provider externe)
+- Style Mapbox: `mapbox://styles/mapbox/streets-v12`
 - Marqueurs “stations”:
   - couche cercle avec couleur selon “bucket” de prix (`cheap|ok|expensive|unknown`)
 - Marqueur “moi”:
@@ -146,6 +147,9 @@ Fichier: `components/maplibre-map.tsx`
 - Ajustement vue:
   - si stations visibles: `fitBounds` sur stations (+ position si connue)
   - sinon, si position: `easeTo` sur la position
+
+Prérequis:
+- créer `.env.local` et renseigner `NEXT_PUBLIC_MAPBOX_TOKEN` (exemple dans `.env.example`)
 
 ### Leaflet (alternative disponible)
 

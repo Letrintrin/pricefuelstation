@@ -24,10 +24,10 @@ import {
 } from "@/components/ui/sheet"
 import dynamic from "next/dynamic"
 
-import type { MapStation } from "@/components/maplibre-map"
+import type { MapStation } from "@/components/mapbox-map"
 
 const StationsMap = dynamic(
-  () => import("@/components/maplibre-map").then((m) => m.StationsMap),
+  () => import("@/components/mapbox-map").then((m) => m.StationsMap),
   {
     ssr: false,
   },
