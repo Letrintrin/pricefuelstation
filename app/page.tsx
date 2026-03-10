@@ -394,7 +394,7 @@ export default function Home() {
                 <SheetTitle>Rayon de recherche</SheetTitle>
               </SheetHeader>
               <div className="mt-4 grid grid-cols-2 gap-2">
-                {[10000, 3000, 5000, 10000, 20000].map((r) => (
+                {[1000, 3000, 5000, 10000, 20000].map((r) => (
                   <Button
                     key={r}
                     size="sm"
