@@ -6,7 +6,7 @@ Ce projet est une application **Next.js (App Router)** “mobile-first” qui :
 
 - demande la **géolocalisation** de l’utilisateur,
 - récupère les **stations-service** autour de lui via une **API interne**,
-- affiche les résultats sur une **carte** (implémentation principale: **MapLibre GL**),
+- affiche les résultats sur une **carte** (implémentation principale: **MapLibre GL + OpenStreetMap**),
 - permet de filtrer par **carburant**, **rayon**, et **“ouvert maintenant”**.
 
 Métadonnées du site (SEO) :
@@ -21,9 +21,8 @@ Métadonnées du site (SEO) :
 - **UI**: Tailwind CSS v4 + shadcn
   - Source: `app/globals.css`, `package.json`
 - **Cartographie**
-  - **Mapbox GL JS** (utilisé par défaut dans la page): `mapbox-gl`
-    - Token requis: `NEXT_PUBLIC_MAPBOX_TOKEN` (voir `.env.example`)
-    - Source: `components/mapbox-map.tsx`, `app/page.tsx`
+  - **MapLibre GL + OpenStreetMap** (utilisé par défaut dans la page): `maplibre-gl`
+    - Source: `components/maplibre-map.tsx`, `app/page.tsx`
   - **Leaflet / React-Leaflet** (autre implémentation disponible): `react-leaflet`, `leaflet`
     - Source: `components/map.tsx`
 
@@ -37,7 +36,6 @@ Métadonnées du site (SEO) :
 - **Page principale**: `app/page.tsx`
 - **API (server)**: `app/api/stations/route.ts`
 - **Carte MapLibre (client)**: `components/maplibre-map.tsx`
-- **Carte Mapbox (client)**: `components/mapbox-map.tsx`
 - **Carte Leaflet (client, alternative)**: `components/map.tsx`
 - **Config Next**: `next.config.ts` (actuellement minimal)
 - **TypeScript**: `tsconfig.json` (alias `@/*` → `./*`)
@@ -133,11 +131,11 @@ Source: `app/api/stations/route.ts` + mapping côté page `app/page.tsx`
 
 ## Cartographie
 
-### Mapbox (implémentation utilisée)
+### MapLibre + OpenStreetMap (implémentation utilisée)
 
-Fichier: `components/mapbox-map.tsx`
+Fichier: `components/maplibre-map.tsx`
 
-- Style Mapbox: `mapbox://styles/mapbox/streets-v12`
+- Basemap: tuiles raster **OpenStreetMap** `https://tile.openstreetmap.org/{z}/{x}/{y}.png`
 - Marqueurs “stations”:
   - couche cercle avec couleur selon “bucket” de prix (`cheap|ok|expensive|unknown`)
 - Marqueur “moi”:
@@ -147,9 +145,6 @@ Fichier: `components/mapbox-map.tsx`
 - Ajustement vue:
   - si stations visibles: `fitBounds` sur stations (+ position si connue)
   - sinon, si position: `easeTo` sur la position
-
-Prérequis:
-- créer `.env.local` et renseigner `NEXT_PUBLIC_MAPBOX_TOKEN` (exemple dans `.env.example`)
 
 ### Leaflet (alternative disponible)
 

@@ -24,10 +24,10 @@ import {
 } from "@/components/ui/sheet"
 import dynamic from "next/dynamic"
 
-import type { MapStation } from "@/components/mapbox-map"
+import type { MapStation } from "@/components/maplibre-map"
 
 const StationsMap = dynamic(
-  () => import("@/components/mapbox-map").then((m) => m.StationsMap),
+  () => import("@/components/maplibre-map").then((m) => m.StationsMap),
   {
     ssr: false,
   },
@@ -219,7 +219,7 @@ export default function Home() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <header className="hidden border-b bg-background/80 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/60 sm:block">
+      {/* <header className="hidden border-b bg-background/80 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/60 sm:block">
         <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3">
           <div>
             <p className="text-xs text-muted-foreground">Carburant autour de moi</p>
@@ -231,10 +231,10 @@ export default function Home() {
             {hasLocation ? "Actualiser" : "Localiser"}
           </Button>
         </div>
-      </header>
+      </header> */}
 
-      <main className="relative flex flex-1 flex-col pb-20 sm:mx-auto sm:w-full sm:max-w-md sm:px-4 sm:pb-24 sm:pt-3">
-        <div className="relative flex-1 min-h-0 w-full overflow-hidden bg-card sm:h-[60vh] sm:flex-none sm:rounded-xl sm:border">
+      <main className="relative flex flex-1 flex-col w-full sm:mx-auto sm:max-w-md sm:px-4 sm:pb-24 sm:pt-3">
+        <div className="relative w-full overflow-hidden bg-card h-[calc(100dvh-64px)] sm:h-[60vh] sm:flex-none sm:rounded-xl sm:border">
           {showLocationPrompt ? (
             <div className="flex h-full w-full items-center justify-center bg-muted/30">
               <div className="w-full max-w-xs rounded-xl border bg-background/80 p-4 text-center shadow-sm">
@@ -317,25 +317,40 @@ export default function Home() {
                 className="rounded-xl border bg-background/95 p-3 text-sm shadow-lg"
                 onClick={() => setFocusedId(null)}
               >
-                <p className="font-semibold truncate">{focusedStation.name}</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {focusedStation.adresse ? `${focusedStation.adresse}, ` : ""}
-                  {focusedStation.cp ? `${focusedStation.cp} ` : ""}
-                  {focusedStation.ville ?? ""}
-                </p>
-                <div className="mt-2 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                    <span className="text-lg">⛽</span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold truncate">{focusedStation.name}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {focusedStation.adresse ? `${focusedStation.adresse}, ` : ""}
+                      {focusedStation.cp ? `${focusedStation.cp} ` : ""}
+                      {focusedStation.ville ?? ""}
+                    </p>
+                  </div>
+                </div>
+
+                {focusedStation.selected && (
+                  <div className="mt-2 flex items-baseline justify-between">
+                    <p className="text-lg font-semibold">
+                      {formatEuro(focusedStation.selected.price)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {fuelLabel(focusedStation.selected.fuel as FuelKey)}
+                    </p>
+                  </div>
+                )}
+
+                <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
                   <span>
                     {focusedStation.distanceKm !== undefined
                       ? `${formatKm(focusedStation.distanceKm)}`
                       : ""}
                   </span>
-                  <span>
-                    {focusedStation.selected
-                      ? `${fuelLabel(
-                          focusedStation.selected.fuel as FuelKey,
-                        )} · ${formatEuro(focusedStation.selected.price)}`
-                      : ""}
-                  </span>
+                  {focusedStation.selected?.maj && (
+                    <span>Maj: {focusedStation.selected.maj}</span>
+                  )}
                 </div>
               </div>
             </div>
