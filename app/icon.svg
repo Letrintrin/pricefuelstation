@@ -1,0 +1,28 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="128" height="128" rx="32" fill="#5B21FF"/>
+  <g filter="url(#shadow)">
+    <path
+      d="M45 30C40.5817 30 37 33.5817 37 38V82C37 86.4183 40.5817 90 45 90H63C67.4183 90 71 86.4183 71 82V38C71 33.5817 67.4183 30 63 30H45Z"
+      fill="white"
+    />
+    <rect x="43" y="40" width="22" height="14" rx="3" fill="#E5E7EB"/>
+    <rect x="46" y="60" width="6" height="18" rx="2" fill="#5B21FF"/>
+    <rect x="56" y="60" width="6" height="18" rx="2" fill="#5B21FF"/>
+  </g>
+  <g filter="url(#pinShadow)">
+    <path
+      d="M90 44C83.9249 44 79 48.9249 79 55C79 64 90 76 90 76C90 76 101 64 101 55C101 48.9249 96.0751 44 90 44Z"
+      fill="#FACC15"
+    />
+    <circle cx="90" cy="55" r="5.5" fill="#1F2933"/>
+  </g>
+  <defs>
+    <filter id="shadow" x="33" y="28" width="42" height="66" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#111827" flood-opacity="0.25"/>
+    </filter>
+    <filter id="pinShadow" x="75" y="42" width="30" height="40" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#111827" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+</svg>
+
